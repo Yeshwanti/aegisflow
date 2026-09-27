@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background-color: #05080d;
+  color: #e2e8f0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0a0f18; }
+::-webkit-scrollbar-thumb { background: #22314a; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #2f4260; }
+
+.maplibregl-ctrl-attrib { background: rgba(5,8,13,0.55) !important; font-size: 9px !important; color: #64748b !important; }
+.maplibregl-ctrl-attrib a { color: #64748b !important; }
+.maplibregl-ctrl-logo { display: none !important; }
+.maplibregl-popup-content { background: #0d1420 !important; color: #e2e8f0 !important; border: 1px solid #22314a !important; border-radius: 10px !important; box-shadow: 0 8px 24px -8px rgba(0,0,0,0.6) !important; padding: 0 !important; }
+.maplibregl-popup-tip { border-top-color: #0d1420 !important; border-bottom-color: #0d1420 !important; }
+.maplibregl-popup-close-button { color: #94a3b8 !important; font-size: 16px !important; padding: 4px 8px !important; }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  animation: pulse-ring 1.8s cubic-bezier(0.2,0.6,0.4,1) infinite;
+}
+
+.scanline-bg {
+  background-image: linear-gradient(rgba(34,211,238,0.035) 1px, transparent 1px);
+  background-size: 100% 3px;
+}
