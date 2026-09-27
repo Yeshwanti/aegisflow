@@ -15,30 +15,11 @@ import { DAM, SETTLEMENTS, ROADS, BRIDGES, FACILITIES } from "../data/demoData";
 import type { MapLayerKey } from "../store/useAppStore";
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
+const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY?.trim();
 
-const CARTO_BASEMAP_KEY = import.meta.env.VITE_CARTO_BASEMAP_KEY?.trim();
-const CARTO_TILE_URLS = ["a", "b", "c"].map(
-  (subdomain) =>
-    `https://${subdomain}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png?key=${encodeURIComponent(CARTO_BASEMAP_KEY ?? "")}`
-);
-
-const BASEMAP_STYLE: maplibregl.StyleSpecification = {
-  version: 8,
-  sources: CARTO_BASEMAP_KEY ? {
-    carto: {
-      type: "raster",
-      tiles: CARTO_TILE_URLS,
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors © CARTO",
-    },
-  } : {},
-  layers: [
-    { id: "map-background", type: "background", paint: { "background-color": "#101923" } },
-    ...(CARTO_BASEMAP_KEY
-      ? [{ id: "carto-layer", type: "raster" as const, source: "carto", paint: { "raster-opacity": 0.55 } }]
-      : []),
-  ],
-};
+const BASEMAP_STYLE = MAPTILER_KEY
+  ? `https://api.maptiler.com/maps/darkmatter/style.json?key=${MAPTILER_KEY}`
+  : "https://tiles.openfreemap.org/styles/dark";
 
 const RISK_COLORS: Record<string, string> = {
   LOW: "#22c55e",
@@ -364,7 +345,7 @@ function buildStaticSources(map: maplibregl.Map) {
     id: "study-area-line",
     type: "line",
     source: "study-area",
-    paint: { "line-color": "#7dd3fc", "line-width": 1.5, "line-dasharray": [3, 2], "line-opacity": 0.75 },
+    paint: { "line-color": "#f1f5f9", "line-width": 1.5, "line-dasharray": [3, 2], "line-opacity": 0.75 },
   });
   map.addLayer({
     id: "river-line-casing",
@@ -376,7 +357,7 @@ function buildStaticSources(map: maplibregl.Map) {
     id: "river-line",
     type: "line",
     source: "river",
-    paint: { "line-color": "#38bdf8", "line-width": 2.5, "line-opacity": 0.95 },
+    paint: { "line-color":  "#facc15", "line-width": 2.5, "line-opacity": 0.95 },
   });
   map.addLayer({
     id: "risk-locations-points",
@@ -417,7 +398,7 @@ function buildRasterLayers(
     } else {
       map.addSource(id, { type: "image", url, coordinates: corners });
       map.addLayer(
-        { id: `${id}-layer`, type: "raster", source: id, paint: { "raster-opacity": 1, "raster-fade-duration": 0 } },
+        { id: `${id}-layer`, type: "raster", source: id, paint: { "raster-opacity": id === "terrain" ? 0.75 : 1, "raster-fade-duration": 0 } },
         "roads-line"
       );
     }

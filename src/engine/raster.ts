@@ -43,30 +43,40 @@ export function terrainRasterURL(grid: SimulationGrid): string {
     return [stops[stops.length - 1][1], stops[stops.length - 1][2], stops[stops.length - 1][3]];
   }
 
-  for (let r = 0; r < rows; r += 1) {
-    for (let c = 0; c < cols; c += 1) {
-      const idx = r * cols + c;
-      const t = (elevation[idx] - min) / range;
-      // crude hillshade using east/south neighbor gradient
-      const eIdx = c < cols - 1 ? r * cols + (c + 1) : idx;
-      const sIdx = r < rows - 1 ? (r + 1) * cols + c : idx;
-      const dx = elevation[eIdx] - elevation[idx];
-      const dy = elevation[sIdx] - elevation[idx];
-      const shade = Math.max(-1, Math.min(1, -(dx + dy) * 0.15));
+ for (let r = 0; r < rows; r += 1) {
+  for (let c = 0; c < cols; c += 1) {
+    const idx = r * cols + c;
+    const t = (elevation[idx] - min) / range;
 
-      let [rr, gg, bb] = ramp(t);
-      const shadeFactor = 1 + shade * 0.25;
-      rr = Math.max(0, Math.min(255, rr * shadeFactor));
-      gg = Math.max(0, Math.min(255, gg * shadeFactor));
-      bb = Math.max(0, Math.min(255, bb * shadeFactor));
+    const eIdx = c < cols - 1 ? r * cols + (c + 1) : idx;
+    const sIdx = r < rows - 1 ? (r + 1) * cols + c : idx;
+    const dx = elevation[eIdx] - elevation[idx];
+    const dy = elevation[sIdx] - elevation[idx];
+    const shade = Math.max(-1, Math.min(1, -(dx + dy) * 0.15));
 
-      const p = idx * 4;
-      img.data[p] = rr;
-      img.data[p + 1] = gg;
-      img.data[p + 2] = bb;
-      img.data[p + 3] = 255;
-    }
+    let [rr, gg, bb] = ramp(t);
+    const shadeFactor = 1 + shade * 0.25;
+    rr = Math.max(0, Math.min(255, rr * shadeFactor));
+    gg = Math.max(0, Math.min(255, gg * shadeFactor));
+    bb = Math.max(0, Math.min(255, bb * shadeFactor));
+
+    const p = idx * 4;
+    img.data[p] = rr;
+    img.data[p + 1] = gg;
+    img.data[p + 2] = bb;
+
+    const edgeDist = Math.min(
+      r,
+      rows - 1 - r,
+      c,
+      cols - 1 - c
+    );
+    const fadeBand = 10;
+    const fade = Math.min(1, edgeDist / fadeBand);
+
+    img.data[p + 3] = Math.round(255 * fade * 0.85);
   }
+}
   ctx.putImageData(img, 0, 0);
   return canvas.toDataURL();
 }

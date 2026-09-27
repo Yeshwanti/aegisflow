@@ -160,11 +160,31 @@ export default function LiveSimulation() {
             </div>
 
             {/* Legend */}
-            {activeLayers.depth && <Legend title="Water Depth (m)" stops={["0–0.5", "0.5–1", "1–2", "2–3", "3–4", "4+"]} colors={["#bae6fd", "#7dd3fc", "#38a5e6", "#2563d2", "#1e40af", "#311a78"]} />}
-            {activeLayers.flood && !activeLayers.depth && !activeLayers.velocity && <Legend title="Flood Extent" stops={["Inundated area", "Study boundary", "River"]} colors={["#2584cf", "#7dd3fc", "#38bdf8"]} />}
-            {activeLayers.velocity && <Legend title="Velocity (m/s)" stops={["<0.5", "0.5–1", "1–1.5", "1.5–2.5", "2.5–3.5", "3.5+"]} colors={["#4ade80", "#a3e635", "#facc15", "#fb923c", "#ef4444", "#be123c"]} />}
-            {activeLayers.arrival && <Legend title="Arrival Time (min)" stops={["<15", "15–30", "30–45", "45+"]} colors={["#ef4444", "#fb923c", "#facc15", "#4ade80"]} />}
-
+          {activeLayers.arrival ? (
+  <Legend
+    title="Arrival Time (min)"
+    stops={["<15", "15–30", "30–45", "45+"]}
+    colors={["#ef4444", "#fb923c", "#facc15", "#4ade80"]}
+  />
+) : activeLayers.velocity ? (
+  <Legend
+    title="Velocity (m/s)"
+    stops={["<0.5", "0.5–1", "1–1.5", "1.5–2.5", "2.5–3.5", "3.5+"]}
+    colors={["#4ade80", "#a3e635", "#facc15", "#fb923c", "#ef4444", "#be123c"]}
+  />
+) : activeLayers.depth ? (
+  <Legend
+    title="Water Depth (m)"
+    stops={["0–0.5", "0.5–1", "1–2", "2–3", "3–4", "4+"]}
+    colors={["#bae6fd", "#7dd3fc", "#38a5e6", "#2563d2", "#1e40af", "#311a78"]}
+  />
+) : activeLayers.flood ? (
+  <Legend
+    title="Flood Extent"
+    stops={["Inundated area", "Study boundary", "River"]}
+    colors={["#2584cf", "#f1f5f9", "#facc15"]}
+  />
+) : null}
             {/* Selected asset popup card */}
             {selectedAsset && selectedImpact && (
               <div className="absolute bottom-4 left-3 bg-base-900/97 border border-base-600 rounded-lg p-4 backdrop-blur w-72 shadow-panel">
