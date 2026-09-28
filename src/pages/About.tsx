@@ -12,7 +12,7 @@ export default function About() {
         <DemoTag />
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 max-w-4xl space-y-5">
+      <div className="mx-auto w-full max-w-screen-2xl flex-1 overflow-y-auto p-6 space-y-5">
         <Panel className="p-6">
           <h2 className="text-lg font-bold text-white mb-2">What AegisFlow Does</h2>
           <p className="text-sm text-slate-400 leading-relaxed">

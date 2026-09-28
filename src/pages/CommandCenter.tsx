@@ -149,8 +149,8 @@ export default function CommandCenter() {
         </div>
 
         <div className="grid grid-cols-3 gap-5">
-          <Panel title="Flood Extent Overview" subtitle="Command Center map — final simulated state" className="col-span-2 overflow-hidden">
-            <div className="h-[420px] relative">
+          <Panel title="Flood Extent Overview" subtitle="Command Center map — final simulated state" className="col-span-2 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-[420px] relative">
               <MapView
                 grid={result?.grid}
                 frame={frame}

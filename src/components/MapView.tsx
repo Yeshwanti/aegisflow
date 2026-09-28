@@ -12,14 +12,18 @@ import {
   velocityRasterURL,
 } from "../engine/raster";
 import { DAM, SETTLEMENTS, ROADS, BRIDGES, FACILITIES } from "../data/demoData";
-import type { MapLayerKey } from "../store/useAppStore";
+import { useAppStore, type MapLayerKey } from "../store/useAppStore";
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
 const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY?.trim();
 
-const BASEMAP_STYLE = MAPTILER_KEY
-  ? `https://api.maptiler.com/maps/darkmatter/style.json?key=${MAPTILER_KEY}`
-  : "https://tiles.openfreemap.org/styles/dark";
+function basemapStyle(theme: "dark" | "light") {
+  if (MAPTILER_KEY) {
+    const style = theme === "dark" ? "darkmatter" : "streets-v2";
+    return `https://api.maptiler.com/maps/${style}/style.json?key=${MAPTILER_KEY}`;
+  }
+  return `https://tiles.openfreemap.org/styles/${theme === "dark" ? "dark" : "positron"}`;
+}
 
 const RISK_COLORS: Record<string, string> = {
   LOW: "#22c55e",
@@ -53,15 +57,19 @@ export default function MapView({
   opacity = 1,
   className,
 }: MapViewProps) {
+  const theme = useAppStore((state) => state.theme);
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const loadedRef = useRef(false);
+  const previousThemeRef = useRef(theme);
+  const latestPropsRef = useRef({ grid, frame, cellResults, maxDurationMin, activeLayers, impacts, opacity });
+  latestPropsRef.current = { grid, frame, cellResults, maxDurationMin, activeLayers, impacts, opacity };
 
   useEffect(() => {
     if (!containerRef.current) return;
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: BASEMAP_STYLE,
+      style: basemapStyle(theme),
       center: [DAM.lng, DAM.lat],
       zoom: 10.3,
       pitch: 0,
@@ -72,7 +80,7 @@ export default function MapView({
 
     map.on("load", () => {
       loadedRef.current = true;
-      buildStaticSources(map);
+      buildStaticSources(map, theme);
       applyLayerVisibility(map, activeLayers);
       buildRasterLayers(map, grid, frame, cellResults, maxDurationMin);
     });
@@ -84,6 +92,28 @@ export default function MapView({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (previousThemeRef.current === theme) return;
+    previousThemeRef.current = theme;
+    const map = mapRef.current;
+    if (!map) return;
+
+    loadedRef.current = false;
+    map.setStyle(basemapStyle(theme));
+    map.once("style.load", () => {
+      const current = latestPropsRef.current;
+      buildStaticSources(map, theme);
+      buildRasterLayers(map, current.grid, current.frame, current.cellResults, current.maxDurationMin);
+      applyLayerVisibility(map, current.activeLayers);
+      if (current.impacts) updateRiskColors(map, current.impacts);
+      ["flood-layer", "depth-layer", "velocity-layer", "arrival-layer"].forEach((id) => {
+        if (map.getLayer(id)) map.setPaintProperty(id, "raster-opacity", current.opacity);
+      });
+      loadedRef.current = true;
+      map.resize();
+    });
+  }, [theme]);
 
   // update raster overlays when data/layers change
   useEffect(() => {
@@ -150,7 +180,11 @@ export default function MapView({
   return <div ref={containerRef} className={className ?? "w-full h-full"} />;
 }
 
-function buildStaticSources(map: maplibregl.Map) {
+function buildStaticSources(map: maplibregl.Map, theme: "dark" | "light") {
+  const labelText = theme === "dark" ? "#cbd5e1" : "#334155";
+  const labelHalo = theme === "dark" ? "#05080d" : "#ffffff";
+  const assetStroke = theme === "dark" ? "#0a0f18" : "#ffffff";
+  const boundaryColor = theme === "dark" ? "#f1f5f9" : "#475569";
   const bounds = gridImageCorners({ rows: GRID_ROWS, cols: GRID_COLS, originLat: DAM.lat, originLng: DAM.lng });
   const riverCoords = Array.from({ length: GRID_ROWS }, (_, row) =>
     gridToLatLng(row, riverCenterlineCol(row), DAM.lat, DAM.lng)
@@ -255,7 +289,7 @@ function buildStaticSources(map: maplibregl.Map) {
     paint: {
       "circle-radius": 5,
       "circle-color": "#facc15",
-      "circle-stroke-color": "#0a0f18",
+      "circle-stroke-color": assetStroke,
       "circle-stroke-width": 1.5,
     },
   });
@@ -277,7 +311,7 @@ function buildStaticSources(map: maplibregl.Map) {
         "#60a5fa",
         "#38bdf8",
       ],
-      "circle-stroke-color": "#0a0f18",
+      "circle-stroke-color": assetStroke,
       "circle-stroke-width": 1.5,
     },
   });
@@ -289,7 +323,7 @@ function buildStaticSources(map: maplibregl.Map) {
     paint: {
       "circle-radius": ["interpolate", ["linear"], ["get", "population"], 900, 6, 7000, 14],
       "circle-color": "#38bdf8",
-      "circle-stroke-color": "#0a0f18",
+      "circle-stroke-color": assetStroke,
       "circle-stroke-width": 1.5,
       "circle-opacity": 0.9,
     },
@@ -306,7 +340,7 @@ function buildStaticSources(map: maplibregl.Map) {
       "text-anchor": "top",
       "text-font": ["Noto Sans Regular"],
     },
-    paint: { "text-color": "#cbd5e1", "text-halo-color": "#05080d", "text-halo-width": 1.2 },
+    paint: { "text-color": labelText, "text-halo-color": labelHalo, "text-halo-width": 1.2 },
   });
 
   map.addLayer({
@@ -316,7 +350,7 @@ function buildStaticSources(map: maplibregl.Map) {
     paint: {
       "circle-radius": 9,
       "circle-color": "#22d3ee",
-      "circle-stroke-color": "#0a0f18",
+      "circle-stroke-color": assetStroke,
       "circle-stroke-width": 2,
     },
   });
@@ -332,7 +366,7 @@ function buildStaticSources(map: maplibregl.Map) {
       "text-anchor": "top",
       "text-font": ["Noto Sans Bold"],
     },
-    paint: { "text-color": "#22d3ee", "text-halo-color": "#05080d", "text-halo-width": 1.4 },
+    paint: { "text-color": "#22d3ee", "text-halo-color": labelHalo, "text-halo-width": 1.4 },
   });
 
   map.addLayer({
@@ -345,7 +379,7 @@ function buildStaticSources(map: maplibregl.Map) {
     id: "study-area-line",
     type: "line",
     source: "study-area",
-    paint: { "line-color": "#f1f5f9", "line-width": 1.5, "line-dasharray": [3, 2], "line-opacity": 0.75 },
+    paint: { "line-color": boundaryColor, "line-width": 1.5, "line-dasharray": [3, 2], "line-opacity": 0.75 },
   });
   map.addLayer({
     id: "river-line-casing",
@@ -366,7 +400,7 @@ function buildStaticSources(map: maplibregl.Map) {
     paint: {
       "circle-radius": 7,
       "circle-color": ["match", ["get", "risk"], "CRITICAL", RISK_COLORS.CRITICAL, RISK_COLORS.HIGH],
-      "circle-stroke-color": "#fff7ed",
+      "circle-stroke-color": theme === "dark" ? "#fff7ed" : "#ffffff",
       "circle-stroke-width": 1.5,
     },
   });

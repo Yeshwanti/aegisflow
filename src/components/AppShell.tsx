@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   Radio,
   Info,
+  Sun,
+  Moon,
 } from "lucide-react";
 import clsx from "clsx";
 import { useAppStore } from "../store/useAppStore";
@@ -34,7 +36,7 @@ const NAV = [
 
 export default function AppShell() {
   const navigate = useNavigate();
-  const { userName, logout } = useAppStore();
+  const { userName, logout, theme, toggleTheme } = useAppStore();
 
   return (
     <div className="flex h-screen w-screen bg-base-950 overflow-hidden">
@@ -83,6 +85,16 @@ export default function AppShell() {
         </nav>
 
         <div className="border-t border-base-700 p-3 space-y-2.5">
+          <button
+            type="button"
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            onClick={toggleTheme}
+            className="flex w-full items-center gap-2.5 rounded-md border border-base-700 px-3 py-2 text-[12px] font-medium text-slate-300 transition-colors hover:bg-base-800 hover:text-white"
+          >
+            {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+            Switch to {theme === "dark" ? "light" : "dark"} mode
+          </button>
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <Radio size={12} className="text-safe" />
             <span>Local simulation demo ready</span>

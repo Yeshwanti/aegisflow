@@ -25,6 +25,8 @@ interface AppState {
   // auth
   isAuthenticated: boolean;
   userName: string;
+  theme: "dark" | "light";
+  toggleTheme: () => void;
   login: (u: string, p: string) => boolean;
   logout: () => void;
 
@@ -85,6 +87,8 @@ const initialLayers: Record<MapLayerKey, boolean> = {
 export const useAppStore = create<AppState>()(persist((set, get) => ({
   isAuthenticated: false,
   userName: "",
+  theme: "dark",
+  toggleTheme: () => set((state) => ({ theme: state.theme === "dark" ? "light" : "dark" })),
   login: (u, p) => {
     if (u.trim().toLowerCase() === "authority@aegisflow.local" && p === "Aegis@2026") {
       set({ isAuthenticated: true, userName: "Authority User" });
@@ -186,6 +190,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => ({
     demoDataLoaded: true,
     isAuthenticated: state.isAuthenticated,
     userName: state.userName,
+    theme: state.theme,
   })),
   demoDataLoaded: true,
 }), {
@@ -194,6 +199,7 @@ export const useAppStore = create<AppState>()(persist((set, get) => ({
   partialize: (state) => ({
     isAuthenticated: state.isAuthenticated,
     userName: state.userName,
+    theme: state.theme,
     scenarios: state.scenarios,
     activeScenarioId: state.activeScenarioId,
     activeLayers: state.activeLayers,

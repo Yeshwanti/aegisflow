@@ -76,22 +76,22 @@ export function MetricCard({
     slate: "text-slate-300",
   };
   return (
-    <div className="bg-base-850 border border-base-700 rounded-lg p-4 flex flex-col gap-2 hover:border-base-500 transition-colors">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] uppercase tracking-wider text-slate-500 font-medium">{label}</span>
-        {icon && <span className={clsx("opacity-80", accentColor[accent ?? "slate"])}>{icon}</span>}
+    <div className="min-w-0 bg-base-850 border border-base-700 rounded-lg p-4 flex flex-col gap-2 hover:border-base-500 transition-colors">
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <span className="min-w-0 text-[11px] uppercase tracking-wider text-slate-500 font-medium">{label}</span>
+        {icon && <span className={clsx("shrink-0 opacity-80", accentColor[accent ?? "slate"])}>{icon}</span>}
       </div>
-      <div className="flex items-baseline gap-1.5">
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-1.5">
         <motion.span
           key={String(value)}
           initial={{ opacity: 0.4, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className={clsx("text-2xl font-bold tabular-nums", accentColor[accent ?? "slate"])}
+          className={clsx("min-w-0 break-all text-2xl font-bold leading-tight tabular-nums", accentColor[accent ?? "slate"])}
         >
           {value}
         </motion.span>
-        {unit && <span className="text-xs text-slate-500 font-medium">{unit}</span>}
+        {unit && <span className="shrink-0 text-xs text-slate-500 font-medium">{unit}</span>}
       </div>
       {delta && <span className="text-[11px] text-slate-500">{delta}</span>}
     </div>

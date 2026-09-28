@@ -54,7 +54,7 @@ export default function GISExplorer() {
         <DemoTag />
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0 min-w-0 overflow-hidden">
         <div className="w-72 shrink-0 border-r border-base-700 overflow-y-auto p-4 space-y-5">
           <div>
             <div className="relative">
@@ -114,7 +114,7 @@ export default function GISExplorer() {
           </div>
         </div>
 
-        <div className="flex-1 relative">
+        <div className="relative flex-1 min-h-0 min-w-0">
           <MapView
             grid={result?.grid}
             frame={result?.frames[result.frames.length - 1]}
@@ -124,6 +124,7 @@ export default function GISExplorer() {
             impacts={result?.impacts}
             opacity={opacity}
             flyTo={flyTo}
+            className="absolute inset-0"
             onSelectAsset={(type, id) => setSelected({ type, id })}
           />
           <div className="absolute bottom-3 left-3 rounded-md border border-base-600 bg-base-900/90 px-3 py-2 text-[10px] text-slate-400">

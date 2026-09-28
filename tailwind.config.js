@@ -5,13 +5,13 @@ export default {
     extend: {
       colors: {
         base: {
-          950: "#05080d",
-          900: "#0a0f18",
-          850: "#0d1420",
-          800: "#111a28",
-          700: "#182333",
-          600: "#22314a",
-          500: "#2f4260",
+          950: "rgb(var(--base-950) / <alpha-value>)",
+          900: "rgb(var(--base-900) / <alpha-value>)",
+          850: "rgb(var(--base-850) / <alpha-value>)",
+          800: "rgb(var(--base-800) / <alpha-value>)",
+          700: "rgb(var(--base-700) / <alpha-value>)",
+          600: "rgb(var(--base-600) / <alpha-value>)",
+          500: "rgb(var(--base-500) / <alpha-value>)",
         },
         accent: {
           DEFAULT: "#22d3ee",

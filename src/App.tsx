@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useAppStore } from "./store/useAppStore";
 import AppShell from "./components/AppShell";
@@ -21,6 +22,12 @@ function RequireAuth({ children }: { children: React.ReactElement }) {
 }
 
 export default function App() {
+  const theme = useAppStore((s) => s.theme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
   return (
     <BrowserRouter>
       <Routes>
